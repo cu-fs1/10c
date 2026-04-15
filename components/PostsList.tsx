@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import axios from "axios"
 import Link from "next/link"
+import { Heart } from "lucide-react"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ interface Post {
   title: string;
   authorName: string;
   createdAt: string;
+  likes: string[];
 }
 
 interface PostsPage {
@@ -84,7 +86,13 @@ export function PostsList() {
             <Link key={post._id} href={`/posts/${post._id}`}>
               <Card className="hover:bg-accent transition-colors cursor-pointer">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">{post.title}</CardTitle>
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-base">{post.title}</CardTitle>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                      <Heart className="size-3" />
+                      {post.likes?.length ?? 0}
+                    </span>
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {post.authorName} &middot;{" "}
                     {new Date(post.createdAt).toLocaleString()}

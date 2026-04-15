@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import axios from "axios"
 import { toast } from "sonner"
-import { Pencil, Trash2, Check, X, ArrowLeft } from "lucide-react"
+import { Pencil, Trash2, Check, X, ArrowLeft, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -22,6 +22,7 @@ interface Post {
   userId: string;
   title: string;
   description: string;
+  likes: string[];
   createdAt: string;
 }
 
@@ -42,6 +43,7 @@ export default function PostPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isLiking, setIsLiking] = useState(false)
 
   const isOwner = !!post && !!user && post.userId === user.id;
 
@@ -58,6 +60,19 @@ export default function PostPage() {
       .catch(() => toast.error("Failed to load post"))
       .finally(() => setIsLoading(false))
   }, [id, reset])
+
+  async function handleLike() {
+    if (!user) return;
+    setIsLiking(true);
+    try {
+      const { data } = await axios.post<{ likes: string[] }>(`/api/posts/${id}/like`);
+      setPost((prev) => prev ? { ...prev, likes: data.likes } : prev);
+    } catch {
+      toast.error("Failed to like post");
+    } finally {
+      setIsLiking(false);
+    }
+  }
 
 
   async function onSubmit(values: EditFormValues) {
@@ -159,6 +174,18 @@ export default function PostPage() {
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl font-bold">{post.title}</h1>
             <ClientOnly>
+              <div className="flex gap-2 shrink-0 items-center">
+                {hydrated && !!user && (
+                  <Button
+                    size="sm"
+                    variant={post.likes?.includes(user.id) ? "default" : "outline"}
+                    onClick={handleLike}
+                    disabled={isLiking}
+                  >
+                    <Heart className={`size-4 mr-1 ${post.likes?.includes(user.id) ? "fill-current" : ""}`} />
+                    {post.likes?.length ?? 0}
+                  </Button>
+                )}
               {isOwner && (
                 <div className="flex gap-2 shrink-0">
                   <Button
@@ -183,6 +210,7 @@ export default function PostPage() {
                   </Button>
                 </div>
               )}
+              </div>
             </ClientOnly>
           </div>
           <p className="text-xs text-muted-foreground mb-8">

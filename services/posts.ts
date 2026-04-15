@@ -90,3 +90,17 @@ export async function updatePost(
 export async function deletePost(id: string, userId: string) {
   return Post.findOneAndDelete({ _id: id, userId });
 }
+
+export async function toggleLike(postId: string, userId: string) {
+  const post = await Post.findById(postId);
+  if (!post) return null;
+
+  const alreadyLiked = post.likes.includes(userId);
+  if (alreadyLiked) {
+    post.likes = post.likes.filter((id) => id !== userId);
+  } else {
+    post.likes.push(userId);
+  }
+  await post.save();
+  return post;
+}
