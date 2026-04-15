@@ -9,9 +9,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner"
-import { useAuthStore } from "@/store/useAuthStore"
-import { ClientOnly } from "@/components/ClientOnly"
+import { Spinner } from "@/components/ui/spinner";
 
 interface Comment {
   _id: string;
@@ -36,7 +34,6 @@ export function CommentsSection({
   postId,
   initialComments,
 }: CommentsSectionProps) {
-  const { user } = useAuthStore();
   const [comments, setComments] = useState<Comment[]>(initialComments ?? []);
   const [commentsLoading, setCommentsLoading] = useState(!initialComments);
 
@@ -68,7 +65,7 @@ export function CommentsSection({
       );
       setComments((prev) => [
         ...prev,
-        { ...data, authorName: user?.name ?? "You" },
+        { ...data, authorName: data.authorName ?? "You" },
       ]);
       resetComment();
       toast.success("Comment added!");
@@ -87,41 +84,30 @@ export function CommentsSection({
         Comments {comments.length > 0 && `(${comments.length})`}
       </h2>
 
-      <ClientOnly>
-        {user ? (
-          <form
-            onSubmit={handleCommentSubmit(onCommentSubmit)}
-            className="flex flex-col gap-2"
-          >
-            <Textarea
-              placeholder="Write a comment…"
-              rows={3}
-              {...registerComment("content")}
-            />
-            {commentErrors.content && (
-              <p className="text-sm text-destructive">
-                {commentErrors.content.message}
-              </p>
-            )}
-            <Button
-              type="submit"
-              size="sm"
-              className="self-end"
-              disabled={isCommentSubmitting}
-            >
-              {isCommentSubmitting ? <Spinner className="size-4 mr-2" /> : null}
-              Post comment
-            </Button>
-          </form>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            <a href="/login" className="underline underline-offset-2">
-              Log in
-            </a>{" "}
-            to leave a comment.
+      <form
+        onSubmit={handleCommentSubmit(onCommentSubmit)}
+        className="flex flex-col gap-2"
+      >
+        <Textarea
+          placeholder="Write a comment…"
+          rows={3}
+          {...registerComment("content")}
+        />
+        {commentErrors.content && (
+          <p className="text-sm text-destructive">
+            {commentErrors.content.message}
           </p>
         )}
-      </ClientOnly>
+        <Button
+          type="submit"
+          size="sm"
+          className="self-end"
+          disabled={isCommentSubmitting}
+        >
+          {isCommentSubmitting ? <Spinner className="size-4 mr-2" /> : null}
+          Post comment
+        </Button>
+      </form>
 
       {commentsLoading ? (
         <div className="flex flex-col gap-4">
