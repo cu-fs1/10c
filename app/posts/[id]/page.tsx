@@ -261,7 +261,6 @@ export default function PostPage() {
       )}
 
       <Separator className="my-10" />
-
       <CommentsSection postId={id as string} initialComments={comments} />
     </div>
   );
