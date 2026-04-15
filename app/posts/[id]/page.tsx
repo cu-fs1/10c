@@ -178,11 +178,17 @@ export default function PostPage() {
                 {hydrated && !!user && (
                   <Button
                     size="sm"
-                    variant={post.likes?.includes(user.id) ? "default" : "outline"}
+                    variant="ghost"
                     onClick={handleLike}
                     disabled={isLiking}
                   >
-                    <Heart className={`size-4 mr-1 ${post.likes?.includes(user.id) ? "fill-current" : ""}`} />
+                    <Heart
+                      className={`size-4 mr-1 ${
+                        post.likes?.includes(user.id)
+                          ? "fill-red-500 text-red-500"
+                          : "text-red-500"
+                      }`}
+                    />
                     {post.likes?.length ?? 0}
                   </Button>
                 )}

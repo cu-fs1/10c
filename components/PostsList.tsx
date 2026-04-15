@@ -8,6 +8,8 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button";
 import { PostsPagination } from "@/components/PostsPagination";
+import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 interface Post {
   _id: string;
@@ -31,6 +33,8 @@ export function PostsList() {
   const [page, setPage] = useState(1);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true)
+  const [likingIds, setLikingIds] = useState<Set<string>>(new Set());
+  const { user, hydrated } = useAuthStore();
 
   const fetchPosts = useCallback(async (p: number) => {
     setIsLoading(true);
@@ -53,6 +57,35 @@ export function PostsList() {
   useEffect(() => {
     fetchPosts(page);
   }, [fetchPosts, page]);
+
+  async function handleLike(e: React.MouseEvent, postId: string) {
+    e.preventDefault();
+    if (!user) return;
+    setLikingIds((prev) => new Set(prev).add(postId));
+    try {
+      const { data: result } = await axios.post<{ likes: string[] }>(
+        `/api/posts/${postId}/like`,
+      );
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              posts: prev.posts.map((p) =>
+                p._id === postId ? { ...p, likes: result.likes } : p,
+              ),
+            }
+          : prev,
+      );
+    } catch {
+      toast.error("Failed to like post");
+    } finally {
+      setLikingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(postId);
+        return next;
+      });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -88,10 +121,31 @@ export function PostsList() {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-base">{post.title}</CardTitle>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                      <Heart className="size-3" />
-                      {post.likes?.length ?? 0}
-                    </span>
+                    {hydrated && user ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-auto p-1 shrink-0"
+                        onClick={(e) => handleLike(e, post._id)}
+                        disabled={likingIds.has(post._id)}
+                      >
+                        <Heart
+                          className={`size-4 ${
+                            post.likes?.includes(user.id)
+                              ? "fill-red-500 text-red-500"
+                              : "text-red-500"
+                          }`}
+                        />
+                        <span className="text-xs ml-1">
+                          {post.likes?.length ?? 0}
+                        </span>
+                      </Button>
+                    ) : (
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                        <Heart className="size-3 text-red-500" />
+                        {post.likes?.length ?? 0}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {post.authorName} &middot;{" "}
