@@ -8,6 +8,7 @@ import axios from "axios"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner"
 import { useAuthStore } from "@/store/useAuthStore"
 import { ClientOnly } from "@/components/ClientOnly"
@@ -28,12 +29,16 @@ type CommentFormValues = z.infer<typeof commentSchema>;
 
 interface CommentsSectionProps {
   postId: string;
+  initialComments?: Comment[];
 }
 
-export function CommentsSection({ postId }: CommentsSectionProps) {
-  const { user, hydrated } = useAuthStore();
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [commentsLoading, setCommentsLoading] = useState(true);
+export function CommentsSection({
+  postId,
+  initialComments,
+}: CommentsSectionProps) {
+  const { user } = useAuthStore();
+  const [comments, setComments] = useState<Comment[]>(initialComments ?? []);
+  const [commentsLoading, setCommentsLoading] = useState(!initialComments);
 
   const {
     register: registerComment,
@@ -45,7 +50,7 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
   });
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (initialComments) return;
     axios
       .get<Comment[]>(`/api/posts/${postId}/comments`)
       .then(({ data }) => setComments(data))
@@ -53,7 +58,7 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
         /* not logged in, silently skip */
       })
       .finally(() => setCommentsLoading(false));
-  }, [postId, hydrated]);
+  }, [postId, initialComments]);
 
   async function onCommentSubmit(values: CommentFormValues) {
     try {
@@ -119,8 +124,10 @@ export function CommentsSection({ postId }: CommentsSectionProps) {
       </ClientOnly>
 
       {commentsLoading ? (
-        <div className="flex justify-center py-4">
-          <Spinner className="size-5" />
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-3/4" />
         </div>
       ) : comments.length === 0 ? (
         <p className="text-sm text-muted-foreground">

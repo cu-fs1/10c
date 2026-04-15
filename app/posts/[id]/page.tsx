@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Spinner } from "@/components/ui/spinner"
+import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/store/useAuthStore";
 import { ClientOnly } from "@/components/ClientOnly";
@@ -23,6 +24,14 @@ interface Post {
   title: string;
   description: string;
   likes: string[];
+  createdAt: string;
+}
+
+interface Comment {
+  _id: string;
+  userId: string;
+  content: string;
+  authorName: string;
   createdAt: string;
 }
 
@@ -40,6 +49,7 @@ export default function PostPage() {
   const backTo = searchParams.get("from") === "my-posts" ? "/my-posts" : "/";
   const { user, hydrated } = useAuthStore();
   const [post, setPost] = useState<Post | null>(null)
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -52,13 +62,19 @@ export default function PostPage() {
   })
 
   useEffect(() => {
-    axios.get<Post>(`/api/posts/${id}`)
-      .then(({ data }) => {
-        setPost(data)
-        reset({ title: data.title, description: data.description })
+    Promise.all([
+      axios.get<Post>(`/api/posts/${id}`),
+      axios
+        .get<Comment[]>(`/api/posts/${id}/comments`)
+        .catch(() => ({ data: [] as Comment[] })),
+    ])
+      .then(([{ data: postData }, { data: commentsData }]) => {
+        setPost(postData);
+        setComments(commentsData);
+        reset({ title: postData.title, description: postData.description });
       })
       .catch(() => toast.error("Failed to load post"))
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsLoading(false));
   }, [id, reset])
 
   async function handleLike() {
@@ -101,10 +117,26 @@ export default function PostPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner className="size-6" />
+      <div className="max-w-2xl mx-auto px-4 py-12">
+        <Skeleton className="h-9 w-20 mb-6" />
+        <Skeleton className="h-9 w-3/4 mb-3" />
+        <Skeleton className="h-4 w-32 mb-8" />
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-4/5" />
+        </div>
+        <Separator className="my-10" />
+        <Skeleton className="h-6 w-28 mb-6" />
+        <Skeleton className="h-20 w-full mb-4" />
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
       </div>
-    )
+    );
   }
 
   if (!post) {
@@ -192,30 +224,30 @@ export default function PostPage() {
                     {post.likes?.length ?? 0}
                   </Button>
                 )}
-              {isOwner && (
-                <div className="flex gap-2 shrink-0">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setEditing(true)}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className="text-destructive hover:text-destructive"
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? (
-                      <Spinner className="size-4" />
-                    ) : (
-                      <Trash2 className="size-4" />
-                    )}
-                  </Button>
-                </div>
-              )}
+                {isOwner && (
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => setEditing(true)}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="text-destructive hover:text-destructive"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <Spinner className="size-4" />
+                      ) : (
+                        <Trash2 className="size-4" />
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             </ClientOnly>
           </div>
@@ -230,7 +262,7 @@ export default function PostPage() {
 
       <Separator className="my-10" />
 
-      <CommentsSection postId={id as string} />
+      <CommentsSection postId={id as string} initialComments={comments} />
     </div>
   );
 }
