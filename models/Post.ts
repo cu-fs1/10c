@@ -4,6 +4,7 @@ export interface IPost extends Document {
   userId: string;
   title: string;
   description: string;
+  imageUrl?: string;
   likes: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -14,9 +15,10 @@ const PostSchema = new Schema<IPost>(
     userId: { type: String, required: true, index: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
+    imageUrl: { type: String, default: null },
     likes: { type: [String], default: [] },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Post: Model<IPost> =

@@ -70,8 +70,14 @@ export async function createPost(
   userId: string,
   title: string,
   description: string,
+  imageUrl?: string,
 ) {
-  return Post.create({ userId, title, description });
+  return Post.create({
+    userId,
+    title,
+    description,
+    imageUrl: imageUrl ?? undefined,
+  });
 }
 
 export async function updatePost(
