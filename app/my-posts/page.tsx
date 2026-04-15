@@ -29,7 +29,7 @@ const LIMIT = 3;
 
 export default function MyPostsPage() {
   const router = useRouter()
-  const { user, isReady } = useRequireAuth("/login")
+  const { isReady } = useRequireAuth("/login")
   const [data, setData] = useState<PostsPage | null>(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true)
