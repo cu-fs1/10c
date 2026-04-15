@@ -58,7 +58,7 @@ export function PostsList() {
 
   useEffect(() => {
     fetchPosts(page);
-  }, [fetchPosts, page]);
+  }, [fetchPosts, page, user]);
 
   async function handleLike(e: React.MouseEvent, postId: string) {
     e.preventDefault();
