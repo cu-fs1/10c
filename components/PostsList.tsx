@@ -26,7 +26,7 @@ interface PostsPage {
   totalPages: number;
 }
 
-const LIMIT = 6;
+const LIMIT = 2;
 
 export function PostsList() {
   const [data, setData] = useState<PostsPage | null>(null);

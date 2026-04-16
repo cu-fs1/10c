@@ -26,7 +26,7 @@ interface PostsPage {
   totalPages: number;
 }
 
-const LIMIT = 3;
+const LIMIT = 2;
 
 export default function MyPostsPage() {
   const router = useRouter()
