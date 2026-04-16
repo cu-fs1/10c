@@ -2,15 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react"
 import axios from "axios"
-import Link from "next/link"
-import { Heart } from "lucide-react"
-import Image from "next/image";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button";
 import { PostsPagination } from "@/components/PostsPagination";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "sonner";
+import { PostCard } from "@/components/PostCard";
 
 interface Post {
   _id: string;
@@ -118,55 +116,14 @@ export function PostsList() {
       ) : (
         <>
           {data.posts.map((post) => (
-            <Link key={post._id} href={`/posts/${post._id}`}>
-              <Card className="hover:bg-accent transition-colors cursor-pointer overflow-hidden">
-                {post.imageUrl && (
-                  <div className="relative w-full h-48">
-                    <Image
-                      src={post.imageUrl}
-                      alt={post.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 600px"
-                    />
-                  </div>
-                )}
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base">{post.title}</CardTitle>
-                    {hydrated && user ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-auto p-1 shrink-0"
-                        onClick={(e) => handleLike(e, post._id)}
-                        disabled={likingIds.has(post._id)}
-                      >
-                        <Heart
-                          className={`size-4 ${
-                            post.likes?.includes(user.id)
-                              ? "fill-red-500 text-red-500"
-                              : "text-red-500"
-                          }`}
-                        />
-                        <span className="text-xs ml-1">
-                          {post.likes?.length ?? 0}
-                        </span>
-                      </Button>
-                    ) : (
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                        <Heart className="size-3 text-red-500" />
-                        {post.likes?.length ?? 0}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {post.authorName} &middot;{" "}
-                    {new Date(post.createdAt).toLocaleString()}
-                  </p>
-                </CardHeader>
-              </Card>
-            </Link>
+            <PostCard
+              key={post._id}
+              post={post}
+              href={`/posts/${post._id}`}
+              currentUserId={hydrated && user ? user.id : undefined}
+              onLike={hydrated && user ? handleLike : undefined}
+              isLiking={likingIds.has(post._id)}
+            />
           ))}
 
           <PostsPagination

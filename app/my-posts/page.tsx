@@ -2,20 +2,21 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import axios from "axios"
-import Link from "next/link"
-import { toast } from "sonner"
-import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+import axios from "axios";
+import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner"
 import { AddPostForm } from "@/components/AddPostForm"
 import { AppHeader } from "@/components/AppHeader"
 import { PostsPagination } from "@/components/PostsPagination";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { PostCard } from "@/components/PostCard";
 
 interface Post {
-  _id: string
-  title: string
-  createdAt: string
+  _id: string;
+  title: string;
+  createdAt: string;
+  imageUrl?: string | null;
+  likes: string[];
 }
 
 interface PostsPage {
@@ -87,21 +88,11 @@ export default function MyPostsPage() {
             ) : (
               <>
                 {data.posts.map((post) => (
-                  <Link
+                  <PostCard
                     key={post._id}
+                    post={post}
                     href={`/posts/${post._id}?from=my-posts`}
-                  >
-                    <Card className="hover:bg-accent transition-colors cursor-pointer">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-base">
-                          {post.title}
-                        </CardTitle>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(post.createdAt).toLocaleString()}
-                        </p>
-                      </CardHeader>
-                    </Card>
-                  </Link>
+                  />
                 ))}
 
                 <PostsPagination
