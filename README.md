@@ -127,6 +127,15 @@ B2_PUBLIC_URL=https://<bucket-name>.s3.<region>.backblazeb2.com
 
 ---
 
+## Prerequisites
+
+- Node.js 20+
+- pnpm (recommended package manager for this repo)
+- A running MongoDB instance (local or Atlas)
+- A Backblaze B2 bucket with S3-compatible credentials
+
+---
+
 ## Getting Started
 
 ```bash
@@ -135,3 +144,24 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Available Scripts
+
+```bash
+pnpm dev    # Run development server
+pnpm build  # Build production bundle
+pnpm start  # Run production server
+pnpm lint   # Run ESLint checks
+```
+
+---
+
+## Production Run
+
+```bash
+pnpm install
+pnpm build
+pnpm start
+```
