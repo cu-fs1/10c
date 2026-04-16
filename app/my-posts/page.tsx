@@ -87,11 +87,12 @@ export default function MyPostsPage() {
               </p>
             ) : (
               <>
-                {data.posts.map((post) => (
+                {data.posts.map((post, i) => (
                   <PostCard
                     key={post._id}
                     post={post}
                     href={`/posts/${post._id}?from=my-posts`}
+                    priority={i === 0}
                   />
                 ))}
 

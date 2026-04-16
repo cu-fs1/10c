@@ -115,7 +115,7 @@ export function PostsList() {
         </p>
       ) : (
         <>
-          {data.posts.map((post) => (
+          {data.posts.map((post, i) => (
             <PostCard
               key={post._id}
               post={post}
@@ -123,6 +123,7 @@ export function PostsList() {
               currentUserId={hydrated && user ? user.id : undefined}
               onLike={hydrated && user ? handleLike : undefined}
               isLiking={likingIds.has(post._id)}
+              priority={i === 0}
             />
           ))}
 

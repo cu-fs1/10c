@@ -14,14 +14,22 @@ export interface PostCardData {
 }
 
 interface PostCardProps {
-  post: PostCardData
-  href: string
-  currentUserId?: string
-  onLike?: (e: React.MouseEvent, postId: string) => void
-  isLiking?: boolean
+  post: PostCardData;
+  href: string;
+  currentUserId?: string;
+  onLike?: (e: React.MouseEvent, postId: string) => void;
+  isLiking?: boolean;
+  priority?: boolean;
 }
 
-export function PostCard({ post, href, currentUserId, onLike, isLiking }: PostCardProps) {
+export function PostCard({
+  post,
+  href,
+  currentUserId,
+  onLike,
+  isLiking,
+  priority = false,
+}: PostCardProps) {
   return (
     <Link href={href}>
       <Card className="hover:bg-accent transition-colors cursor-pointer overflow-hidden">
@@ -33,6 +41,7 @@ export function PostCard({ post, href, currentUserId, onLike, isLiking }: PostCa
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 600px"
+              priority={priority}
             />
           </div>
         )}
@@ -64,13 +73,11 @@ export function PostCard({ post, href, currentUserId, onLike, isLiking }: PostCa
             )}
           </div>
           <p className="text-xs text-muted-foreground">
-            {post.authorName && (
-              <>{post.authorName} &middot;{" "}</>
-            )}
+            {post.authorName && <>{post.authorName} &middot; </>}
             {new Date(post.createdAt).toLocaleString()}
           </p>
         </CardHeader>
       </Card>
     </Link>
-  )
+  );
 }
